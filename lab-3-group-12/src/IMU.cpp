@@ -34,3 +34,8 @@ void IMU_sensor::PrintAcceleration(void)
     //imu.g.x, imu.g.y, imu.g.z);
     Serial.println(report); 
 }
+/*int IMU_sensor::PrintAcceleration(void){
+    imu.read();
+    Serial.println(imu.a.z);
+}
+*/

@@ -5,27 +5,29 @@
 #include "IMU.h"
 #include <LSM6.h>
 
-//Behaviors collisionBehavior;
+Behaviors collisionBehavior;
 //SpeedController controller;
 IMU_sensor sensor;
-//Romi32U4ButtonA button;
+Romi32U4ButtonA button;
 int now = millis();
 
 void setup() {
-  //collisionBehavior.Init();
+  collisionBehavior.Init();
   Serial.begin(9600);
+  sensor.Init();
 }
 
 void loop() {
-  //collisionBehavior.Run();
+  collisionBehavior.Run();
   /*if (button.getSingleDebouncedPress()){
   controller.Turn(90, true);
   }*/
   
-  if (millis() - now >= 50){
+  /*if (millis() - now >= 50){
     sensor.PrintAcceleration();
     now = millis();
-    
-   
   }
+  */
+
+  //Serial.println(collisionBehavior.DetectBeingPickedUp());
 }
