@@ -36,6 +36,12 @@ void Position::PrintPose(void)
     Serial.print(y);
     Serial.print('\t');
     Serial.println(theta);
+    Serial.println('\t');
+    Serial.print(x_theoretical);
+    Serial.print('\t');
+    Serial.print(y_theoretical);
+    Serial.print('\t');
+    Serial.println(theta_theoretical);
 }
 
 void Position::UpdatePose(float target_speed_left, float target_speed_right)
@@ -50,26 +56,28 @@ void Position::UpdatePose(float target_speed_left, float target_speed_right)
         v = w*ICC;
 
         //theoretical
-        /*
+        
         ICC_theoretical = (l/2)*(target_speed_right+target_speed_left)/(target_speed_right-target_speed_left);
         w_theoretical = (target_speed_right-target_speed_left)/l;
         v_theoretical = w_theoretical*ICC_theoretical;
-        */
+        
 
         //straight paths
         //measured
         if (RomiEncoders.ReadVelocityRight() == RomiEncoders.ReadVelocityLeft()){
-            int nx = x + 50*v*cos(theta);
-            int ny = y + 50*v*sin(theta);
+            float nx = x + 50*v*cos(theta);
+            float ny = y + 50*v*sin(theta);
             //theta is constant
 
             x = nx;
             y = ny;           
             //theoretical
-            /*
-            x_theoretical = x_theoretical + v_theoretical*cos(theta_theoretical)*50;
-            y_theoretical = y_theoretical + v_theoretical*sin(theta_theoretical)*50;
-            */
+            
+            float nx_theoretical = x_theoretical + v_theoretical*cos(theta_theoretical)*50;
+            float ny_theoretical = y_theoretical + v_theoretical*sin(theta_theoretical)*50;
+
+            x_theoretical = nx_theoretical;
+            y_theoretical = ny_theoretical;
             //theta is constant
             /*
             Serial.println(x_measured);
@@ -88,19 +96,22 @@ void Position::UpdatePose(float target_speed_left, float target_speed_right)
         //curved paths
         else if (RomiEncoders.ReadVelocityRight() != RomiEncoders.ReadVelocityLeft()){
             //measured
-            int nx = x -ICC*sin(theta) + ICC*sin(theta + 50*w);
-            int ny = y -ICC*cos(theta) + ICC*cos(theta+ 50*w);
-            int ntheta = theta + 50*w;
+            float nx = x -ICC*sin(theta) + ICC*sin(theta + 50*w);
+            float ny = y -ICC*cos(theta) + ICC*cos(theta+ 50*w);
+            float ntheta = theta + 50*w;
 
             x = nx;
             y = ny;
             theta = ntheta; 
             //theoretical
-            /*
-            x_theoretical = x_theoretical -ICC_theoretical*sin(theta_theoretical) + ICC_theoretical*sin(theta_theoretical + 50*w_theoretical);
-            y_theoretical = y_theoretical -ICC_theoretical*cos(theta_theoretical) + ICC_theoretical*cos(theta_theoretical + 50*w_theoretical);
-            theta_theoretical = theta_theoretical + 50*w_theoretical;
-        */
+            
+            float nx_theoretical = x_theoretical -ICC_theoretical*sin(theta_theoretical) + ICC_theoretical*sin(theta_theoretical + 50*w_theoretical);
+            float ny_theoretical = y_theoretical -ICC_theoretical*cos(theta_theoretical) + ICC_theoretical*cos(theta_theoretical + 50*w_theoretical);
+            float ntheta_theoretical = theta_theoretical + 50*w_theoretical;
+        
+            x_theoretical = nx_theoretical;
+            y_theoretical = ny_theoretical;
+            theta_theoretical = ntheta_theoretical;
 
         }
             /*

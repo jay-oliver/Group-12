@@ -6,11 +6,11 @@
 class Position{
     private:
         float x, y, theta;
-        //float x_theoretical, y_theoretical, theta_theoretical;
+        float x_theoretical, y_theoretical, theta_theoretical;
         unsigned long time_prev, time_now;
         const float l = 0.142875; //assignment
         float ICC, w, v; //w is omega I'm sorry
-        //float ICC_theoretical, w_theoretical, v_theoretical;
+        float ICC_theoretical, w_theoretical, v_theoretical;
         
         
     public:
