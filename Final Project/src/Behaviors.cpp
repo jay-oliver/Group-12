@@ -21,7 +21,7 @@ SpeedController PIcontroller;
 WallFollowingController wallfollow;
 
 //state machine
-enum ROBOT_STATE {STEP1, STEP2, STEP3, STEP4, STEP5, STEP6};
+enum ROBOT_STATE {STEP1, STEP2, STEP3, STEP4, STEP5, STEP6, STOP};
 ROBOT_STATE robot_state = STEP1;
 
 
@@ -43,7 +43,8 @@ boolean Behaviors::DetectCollision(void)
     data[0] = med_x.Filter(data_acc.X)/**0.061*/;
     data[1] = med_y.Filter(data_acc.Y)/**0.061*/;
     data[2] = med_z.Filter(data_acc.Z)/**0.061*/;
-    if((data[0] < threshold) || (data[1] < threshold)){
+    Serial.println(data[2]);
+    if((data[2] > threshold_high) || (data[2] < threshold_low)){
          return true;
     }
     else 
@@ -53,6 +54,9 @@ boolean Behaviors::DetectCollision(void)
 boolean Behaviors::DetectBeingPickedUp(void)
 {
     auto data_acc = LSM6.ReadAcceleration();
+    data[0] = med_x.Filter(data_acc.X)/**0.061*/;
+    data[1] = med_y.Filter(data_acc.Y)/**0.061*/;
+    data[2] = med_z.Filter(data_acc.Z)/**0.061*/;
     if( data_acc.Z >= threshold_pick_up){
         Serial.println("I was picked up");
         return true;
@@ -64,8 +68,12 @@ boolean Behaviors::DetectBeingPickedUp(void)
 
 boolean Behaviors::DetectOffRamp(void){
      auto data_acc = LSM6.ReadAcceleration();
-    if( data_acc.Z <= threshold_off_ramp){
-        Serial.println("off ramp");
+    data[0] = med_x.Filter(data_acc.X)/**0.061*/;
+    data[1] = med_y.Filter(data_acc.Y)/**0.061*/;
+    data[2] = med_z.Filter(data_acc.Z)/**0.061*/;
+     Serial.println(data_acc.Z);
+    if( data_acc.Z <= threshold_off_ramp || data_acc.Z >= threshold_off_high){
+        Serial.println(data_acc.Z);
         return true;
     }
     else{
@@ -75,8 +83,12 @@ boolean Behaviors::DetectOffRamp(void){
 
 boolean Behaviors::DetectOnRamp(void){
     auto data_acc = LSM6.ReadAcceleration();
+    data[0] = med_x.Filter(data_acc.X)/**0.061*/;
+    data[1] = med_y.Filter(data_acc.Y)/**0.061*/;
+    data[2] = med_z.Filter(data_acc.Z)/**0.061*/;
+    Serial.println(data_acc.Z);
     if( data_acc.Z >= threshold_on_ramp_high || data_acc.Z <= threshold_on_ramp_low){
-        Serial.println("on ramp");
+        Serial.println(data_acc.Z);
         return true;
     }
     else{
@@ -102,7 +114,15 @@ void Behaviors::FollowWall(void){
     float speed = wallfollow.Process(40);
     PIcontroller.Process(50+speed, 50-speed);
 }
+void Behaviors::Turn(int degree, int direction){
+  if (buttonA.getSingleDebouncedRelease()){
+  PIcontroller.Turn(degree, direction);
+  }
+}
 
+void Behaviors::Go(int left, int right){
+  PIcontroller.Run(left, right);
+}
 void Behaviors::Run(void){
 
     switch (robot_state)
@@ -127,26 +147,15 @@ void Behaviors::Run(void){
       if (millis()- now >= 1000){
         timerUp = true;  
         if(timerUp){
-       /* for (int i = 0; i <1000; i++){
-            while(millis()-now <= 1){
-                PIcontroller.Stop();
-            }
-            now = millis();
-            Serial.println("waiting");
-            }
-            robot_state = STEP2B;
-            Serial.println("Done Waiting");
-        break;
-        //}
-        case STEP2B:*/
             if(DetectCollision()){
                 PIcontroller.Stop();
                 Serial.println("Step 2 complete");
                 robot_state = STEP3;
             }
             else{
-                PIcontroller.Run(100, 100);
+                PIcontroller.Run(200, 200);
                 Serial.println("no collision yet");
+                robot_state = STEP2;
             }
       }
     }
@@ -161,6 +170,9 @@ void Behaviors::Run(void){
         Serial.println("Step Three Completed Successfully");
         //Can we please have a happy beep or something that'd be adorable
         robot_state = STEP4;
+        PIcontroller.Turn(90, 0);
+        FollowWall();
+        step4Time = millis();
       }
       else{
         robot_state = STEP3;
@@ -169,27 +181,34 @@ void Behaviors::Run(void){
     break;
     case STEP4:
       ////Rotate 90 degrees, follow wall around the corner
-      if(DetectOnRamp()){
-        Serial.println("Step 4 completed");
-        robot_state = STEP5;
-      }
-      else{
-        if(PIcontroller.Turn(90, 0)){
-        FollowWall();
+      if(millis()-step4Time <=17000){
+        Serial.println("waited to wall follow");
+        float speed = wallfollow.Process(40);
+        PIcontroller.Process(50+speed, 50-speed);
         robot_state = STEP4;
       }
-    }
+      else //(DetectOnRamp())
+      {
+        Serial.println("Step 4 completed");
+        step5Time = millis();
+        robot_state = STEP5;
+      }
+      /*else{
+        float speed = wallfollow.Process(40);
+      PIcontroller.Process(50+speed, 50-speed);
+        robot_state = STEP4;
+    }*/
       break;
     case STEP5:
       ////Pass the ramp, then continue to follow the wall for another 10 cm
-      if(DetectOffRamp()){
+      if(/*DetectOffRamp()*/millis()-step5Time >= 15000){
         PIcontroller.Stop();
         Serial.println("Step 5 completed");
         robot_state = STEP6;
       }
       else{
         Serial.println("ramp");
-        PIcontroller.Ramp(200);
+        PIcontroller.Ramp(100);
         robot_state = STEP5;
       }
       break;
@@ -197,9 +216,13 @@ void Behaviors::Run(void){
     PIcontroller.Straight(25, 4);
     PIcontroller.Stop();
     Serial.println("Step 6 completed");
+    robot_state = STEP1;
       ////Stop, and remove object from robot
       //Happy happy beep maybe possibly?
-      break;
+    break;
+    case STOP:
+    PIcontroller.Stop();
+    break;
 }
 
 }

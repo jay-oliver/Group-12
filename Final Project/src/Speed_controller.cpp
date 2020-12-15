@@ -29,7 +29,7 @@ void SpeedController::Run(float target_velocity_left, float target_velocity_righ
 
         motors.setEfforts(u_left,u_right);
         odometry.UpdatePose(target_velocity_left,target_velocity_right); //this is where your newly programmed function is/will be called
-        odometry.PrintPose();
+        //odometry.PrintPose();
         
     }
 }
@@ -57,16 +57,16 @@ void SpeedController::Process(float target_velocity_left, float target_velocity_
 boolean SpeedController::Turn(int degree, int direction)
 {
     motors.setEfforts(0, 0);
-    int turns = 8*degree; //assignment 1: convert degree into counts
-    int count_turn = MagneticEncoder.ReadEncoderCountLeft();
+    int turns = 14*degree; //assignment 1: convert degree into counts
+    int count_turn = MagneticEncoder.ReadEncoderCountRight();
 
-    while(abs(abs(count_turn) - abs(MagneticEncoder.ReadEncoderCountLeft())) <= turns)
+    while(abs(abs(count_turn) - abs(MagneticEncoder.ReadEncoderCountRight())) <= turns)
     {
         if(!direction) {
-            Run(50,-50);
+            Run(0,-50);
         }
         else {
-            Run(-50,50);
+            Run(0,-50);
         }
         Serial.println("turning");
     }
@@ -82,7 +82,7 @@ boolean SpeedController::Straight(int target_velocity, int time) //in mm/s and s
 
     while ((millis() - now) <= time*1000){
         Run(target_velocity,target_velocity);
-        Serial.println("driving straight");
+        //Serial.println("driving straight");
     }
     motors.setEfforts(0, 0);
     return 1;
@@ -112,5 +112,5 @@ boolean SpeedController::Curved(int target_velocity_left, int target_velocity_ri
 void SpeedController::Stop()
 {
     motors.setEfforts(0,0);
-    odometry.Stop();
+    //odometry.Stop();
 }
