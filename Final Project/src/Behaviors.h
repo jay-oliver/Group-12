@@ -13,6 +13,7 @@ class Behaviors{
         enum ROBOT_STATE {STEP1, STEP2A, STEP2B, STEP3, STEP4, STEP5, STEP6};
         ROBOT_STATE robot_state = STEP1; //initial state: IDLE
         bool go;
+        uint32_t now = 0;
         bool timerUp = false;
          
     public:

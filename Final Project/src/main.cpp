@@ -10,8 +10,8 @@ void setup() {
 }
 
 void loop() {
-//positionEstimation.Run();
+positionEstimation.Run();
 //positionEstimation.Move(30, 30);
-positionEstimation.FollowWall();
+//positionEstimation.FollowWall();
 }
   

@@ -109,6 +109,7 @@ void Behaviors::Run(void){
       if(buttonA.getSingleDebouncedRelease())
       {
         Serial.println("Step One Completed Successfully");
+        now = millis();
         //Can we please have a happy beep or something that'd be adorable
         robot_state = STEP2A;
       }
@@ -119,7 +120,7 @@ void Behaviors::Run(void){
     case STEP2A:
       ////After one second, move straight until you collide with the wall, then stop
       //millis until one second
-     uint32_t now = millis();
+     
       if (millis()- now >= 1000){
         timerUp = true;  
         if(timerUp){
