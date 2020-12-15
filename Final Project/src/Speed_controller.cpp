@@ -57,7 +57,7 @@ void SpeedController::Process(float target_velocity_left, float target_velocity_
 boolean SpeedController::Turn(int degree, int direction)
 {
     motors.setEfforts(0, 0);
-    int turns = counts*degree; //assignment 1: convert degree into counts
+    int turns = 8*degree; //assignment 1: convert degree into counts
     int count_turn = MagneticEncoder.ReadEncoderCountLeft();
 
     while(abs(abs(count_turn) - abs(MagneticEncoder.ReadEncoderCountLeft())) <= turns)

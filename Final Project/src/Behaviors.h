@@ -7,8 +7,9 @@ class Behaviors{
     private:
         int threshold = -1800;
         int threshold_pick_up = 23000;
-        int threshold_off_ramp = 100;
-        int threshold_on_ramp = 200;
+        int threshold_off_ramp = 0;
+        int threshold_on_ramp_high = 26000;
+        int threshold_on_ramp_low = 8000;
         int data[3] = {0};
         enum ROBOT_STATE {STEP1, STEP2, STEP3, STEP4, STEP5, STEP6};
         ROBOT_STATE robot_state = STEP1; //initial state: IDLE
@@ -27,6 +28,7 @@ class Behaviors{
         void Problem1(void);
         void Move(int, int); //speed, time
         void FollowWall(void);
+        void Ramp(int);
 
 };
 

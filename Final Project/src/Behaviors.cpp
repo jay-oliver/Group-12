@@ -64,7 +64,7 @@ boolean Behaviors::DetectBeingPickedUp(void)
 
 boolean Behaviors::DetectOffRamp(void){
      auto data_acc = LSM6.ReadAcceleration();
-    if( data_acc.Z >= threshold_off_ramp){
+    if( data_acc.Z <= threshold_off_ramp){
         Serial.println("off ramp");
         return true;
     }
@@ -75,7 +75,7 @@ boolean Behaviors::DetectOffRamp(void){
 
 boolean Behaviors::DetectOnRamp(void){
     auto data_acc = LSM6.ReadAcceleration();
-    if( data_acc.Z >= threshold_on_ramp){
+    if( data_acc.Z >= threshold_on_ramp_high || data_acc.Z <= threshold_on_ramp_low){
         Serial.println("on ramp");
         return true;
     }
@@ -89,6 +89,9 @@ void Behaviors::Stop(void)
     Serial.println("stopped");
 }
 
+void Behaviors::Ramp(int var){
+  PIcontroller.Ramp(var);
+}
 void Behaviors::Move(int speed, int time){
     if (buttonA.getSingleDebouncedRelease()){
         PIcontroller.Straight(speed, time);
@@ -96,7 +99,7 @@ void Behaviors::Move(int speed, int time){
 }
 
 void Behaviors::FollowWall(void){
-    float speed = wallfollow.Process(1);
+    float speed = wallfollow.Process(40);
     PIcontroller.Process(50+speed, 50-speed);
 }
 
@@ -171,8 +174,8 @@ void Behaviors::Run(void){
         robot_state = STEP5;
       }
       else{
-        if(PIcontroller.Turn(90, 1)){
-        wallfollow.Process(20);
+        if(PIcontroller.Turn(90, 0)){
+        FollowWall();
         robot_state = STEP4;
       }
     }
@@ -185,7 +188,8 @@ void Behaviors::Run(void){
         robot_state = STEP6;
       }
       else{
-        PIcontroller.Ramp(25);
+        Serial.println("ramp");
+        PIcontroller.Ramp(200);
         robot_state = STEP5;
       }
       break;
