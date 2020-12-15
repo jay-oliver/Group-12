@@ -21,7 +21,7 @@ SpeedController PIcontroller;
 WallFollowingController wallfollow;
 
 //state machine
-enum ROBOT_STATE {STEP1, STEP2A, STEP2B, STEP3, STEP4, STEP5, STEP6};
+enum ROBOT_STATE {STEP1, STEP2, STEP3, STEP4, STEP5, STEP6};
 ROBOT_STATE robot_state = STEP1;
 
 
@@ -111,13 +111,13 @@ void Behaviors::Run(void){
         Serial.println("Step One Completed Successfully");
         now = millis();
         //Can we please have a happy beep or something that'd be adorable
-        robot_state = STEP2A;
+        robot_state = STEP2;
       }
       else{
         robot_state = STEP1;
       }
       break;
-    case STEP2A:
+    case STEP2:
       ////After one second, move straight until you collide with the wall, then stop
       //millis until one second
      

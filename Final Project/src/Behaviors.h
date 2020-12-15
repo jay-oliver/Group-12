@@ -10,7 +10,7 @@ class Behaviors{
         int threshold_off_ramp = 100;
         int threshold_on_ramp = 200;
         int data[3] = {0};
-        enum ROBOT_STATE {STEP1, STEP2A, STEP2B, STEP3, STEP4, STEP5, STEP6};
+        enum ROBOT_STATE {STEP1, STEP2, STEP3, STEP4, STEP5, STEP6};
         ROBOT_STATE robot_state = STEP1; //initial state: IDLE
         bool go;
         uint32_t now = 0;
